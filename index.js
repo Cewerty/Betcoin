@@ -5,15 +5,14 @@ const contractABI = BetcoinArtifact.abi;
 
 const provider = new JsonRpcProvider('http://127.0.0.1:8545/');
 
-const privateKey = '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80'; // Замените на ваш приватный ключ
+const privateKey = '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80';
 
 const signer = new Wallet(privateKey, provider);
 
-const contractAddress = '0x5FbDB2315678afecb367f032d93F642f64180aa3'; // Замените на адрес вашего контракта
+const contractAddress = '0x5FbDB2315678afecb367f032d93F642f64180aa3';
 
 const contract = new Contract(contractAddress, contractABI, signer);
 
-const read_only_contract = new Contract(contractAddress, contractABI, provider);
 
 async function main() {
     try {
@@ -22,11 +21,13 @@ async function main() {
 
         console.log(`Минтим ${formatUnits(mintAmount, 18)} токенов на адрес ${recipientAddress}`);
 
+        // Выполнение транзакции минтинга
         const mintTx = await contract.mint(mintAmount);
         await mintTx.wait();
 
         console.log('Минтинг выполнен успешно.');
 
+        //Проверка баланса после минтинга
         const balanceAfterMint = await contract.balanceOf(recipientAddress);
         console.log(`Баланс после минтинга: ${formatUnits(balanceAfterMint, 18)} токенов`);
 
@@ -34,6 +35,7 @@ async function main() {
 
         console.log(`Сжигаем ${formatUnits(burnAmount, 18)} токенов с адреса ${recipientAddress}`);
 
+        // Выполнение транзакции сжигания
         const burnTx = await contract.burn(burnAmount);
         await burnTx.wait();
 
@@ -47,5 +49,5 @@ async function main() {
     }
 }
 
-// Вызов функции main
+
 main();
