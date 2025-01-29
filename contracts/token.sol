@@ -29,9 +29,9 @@ contract Betcoin {
     }
 
 // Добавьте эту функцию в контракт
-function getBalanceOf(address _owner) public view returns (uint256) {
-    return balanceOf[_owner];
-}
+    function getBalanceOf(address _owner) public view returns (uint256) {
+        return balanceOf[_owner];
+    }
 
 
     function transfer(address _to, uint256 _value) public returns (bool success) {

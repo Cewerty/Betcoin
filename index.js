@@ -16,10 +16,11 @@ const contract = new Contract(contractAddress, contractABI, signer);
 
 async function main() {
     try {
+        const decimals = await contract.decimals();
         const recipientAddress = await signer.getAddress(); 
-        const mintAmount = parseUnits('1000000', 18);
+        const mintAmount = parseUnits('1000000', decimals);
 
-        console.log(`Минтим ${formatUnits(mintAmount, 18)} токенов на адрес ${recipientAddress}`);
+        console.log(`Минтим ${formatUnits(mintAmount, decimals)} токенов на адрес ${recipientAddress}`);
 
         // Выполнение транзакции минтинга
         const mintTx = await contract.mint(mintAmount);
@@ -29,11 +30,11 @@ async function main() {
 
         //Проверка баланса после минтинга
         const balanceAfterMint = await contract.balanceOf(recipientAddress);
-        console.log(`Баланс после минтинга: ${formatUnits(balanceAfterMint, 18)} токенов`);
+        console.log(`Баланс после минтинга: ${formatUnits(balanceAfterMint, decimals)} токенов`);
 
-        const burnAmount = parseUnits('500000', 18);
+        const burnAmount = parseUnits('500000', decimals);
 
-        console.log(`Сжигаем ${formatUnits(burnAmount, 18)} токенов с адреса ${recipientAddress}`);
+        console.log(`Сжигаем ${formatUnits(burnAmount, decimals)} токенов с адреса ${recipientAddress}`);
 
         // Выполнение транзакции сжигания
         const burnTx = await contract.burn(burnAmount);
@@ -43,7 +44,7 @@ async function main() {
 
         // Проверка баланса после сжигания
         const balanceAfterBurn = await contract.balanceOf(recipientAddress);
-        console.log(`Баланс после сжигания: ${formatUnits(balanceAfterBurn, 18)} токенов`);
+        console.log(`Баланс после сжигания: ${formatUnits(balanceAfterBurn, decimals)} токенов`);
     } catch (error) {
         console.error('Ошибка при взаимодействии с контрактом:', error);
     }
