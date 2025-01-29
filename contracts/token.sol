@@ -10,6 +10,9 @@ contract Betcoin {
 
     uint256 public totalSupply;
 
+    bool public paused;
+
+    address public owner;
 
     mapping(address => uint256) public balanceOf;
 
@@ -24,17 +27,35 @@ contract Betcoin {
     constructor(uint256 initialSupply) {
         totalSupply = initialSupply * (10 ** uint256(decimals));
         balanceOf[msg.sender] = totalSupply;
-
+        owner = msg.sender;
         emit Transfer(address(0), msg.sender, totalSupply);
     }
 
-// Добавьте эту функцию в контракт
-    function getBalanceOf(address _owner) public view returns (uint256) {
-        return balanceOf[_owner];
+    modifier isNotPaused() {
+        require(!paused, "Contract paused");
+        _;
     }
 
+    modifier isPaused() {
+        require(paused, "Contract not paused");
+        _;
+    }
 
-    function transfer(address _to, uint256 _value) public returns (bool success) {
+    modifier onlyOwner() {
+        require(msg.sender == owner, "This function can use only contract owner.");
+        _;
+    }
+
+// Добавьте эту функцию в контракт
+    function pause() public onlyOwner() isNotPaused() {
+        paused = true;
+    }
+
+    function unpause() public onlyOwner() isPaused() {
+        paused = false;
+    }
+
+    function transfer(address _to, uint256 _value) public isNotPaused() returns (bool success) {
         require(balanceOf[msg.sender] >= _value, "Not enough balance");
         balanceOf[msg.sender] -= _value;
         balanceOf[_to] += _value;
@@ -42,13 +63,13 @@ contract Betcoin {
         return true;
     }
 
-    function approve(address _spender, uint256 _value) public returns (bool success) {
+    function approve(address _spender, uint256 _value) public isNotPaused() returns (bool success) {
         allowance[msg.sender][_spender] = _value;
         emit Approval(msg.sender, _spender, _value);
         return true;
     }
 
-    function transferFrom(address _from, address _to, uint256 _value) public returns (bool success) {
+    function transferFrom(address _from, address _to, uint256 _value) public isNotPaused() returns (bool success) {
         require(balanceOf[_from] >= _value, "Not enough balance");
         require(allowance[_from][msg.sender] >= _value, "Allowance exceeded");
         balanceOf[_from] -= _value;
@@ -62,7 +83,7 @@ contract Betcoin {
         return allowance[_owner][_spender];
     }
 
-    function mint(uint _amount) public returns (bool success) {
+    function mint(uint _amount) public onlyOwner() isNotPaused() returns (bool success) {
         require(_amount > 0, "You can not mint zero tokens.");
         totalSupply = totalSupply + _amount;
         balanceOf[msg.sender] += _amount;
