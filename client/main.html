@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <header>
+        <h1 id="token-symbol"></h1>
+        <h2 id="token-name"></h2>
+    </header>
+    <main>
+        <p>Total supply is <b><span id="token-totalSupply"></span></b></p>
+        <p>Your current balance is <b><span id="token-userBalance"></span></b></p>
+        <form id="transaction-form">
+            <label>Введите сумму токенов, которую хотите перевести:</label>
+            <input id="transaction-sum" type="number" required>
+            <br>
+            <label>Введите аккаунт на который вы хотите перевести токены:</label>
+            <input id="transaction-account" type="text" required>
+            <br>
+            <button type="submit">Отправить транзакцию</button>
+        </form>
+    </main>
+    <footer>
+    </footer>
+    <script type="module" src="main.js"></script>
+</body>
+</html>
