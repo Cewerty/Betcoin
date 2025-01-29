@@ -10,6 +10,8 @@ contract Betcoin {
 
     uint256 public totalSupply;
 
+    uint256 public tokenCap;
+
     bool public paused;
 
     address public owner;
@@ -18,6 +20,7 @@ contract Betcoin {
 
     mapping(address => mapping(address => uint256)) public allowance;
 
+    mapping(address => bool) public blacklist;
 
     event Transfer(address indexed from, address indexed to, uint256 value);
 
@@ -46,7 +49,11 @@ contract Betcoin {
         _;
     }
 
-// Добавьте эту функцию в контракт
+    modifier isNotBlacklisted() {
+        require(blacklist[msg.sender], 'This function allowed only for non blacklisted users.');
+        _;
+    }
+
     function pause() public onlyOwner() isNotPaused() {
         paused = true;
     }
@@ -55,7 +62,19 @@ contract Betcoin {
         paused = false;
     }
 
-    function transfer(address _to, uint256 _value) public isNotPaused() returns (bool success) {
+    function setTokenCap(uint256 _amount) public onlyOwner() {
+        tokenCap = _amount;
+    }
+
+    function blacklistAddress(address _address) public onlyOwner() {
+        blacklist[_address] = true;
+    }
+
+    function unblacklistAddress(address _address) public onlyOwner() {
+        blacklist[_address] = false;
+    }
+
+    function transfer(address _to, uint256 _value) public isNotPaused() isNotBlacklisted() returns (bool success) {
         require(balanceOf[msg.sender] >= _value, "Not enough balance");
         balanceOf[msg.sender] -= _value;
         balanceOf[_to] += _value;
@@ -63,13 +82,13 @@ contract Betcoin {
         return true;
     }
 
-    function approve(address _spender, uint256 _value) public isNotPaused() returns (bool success) {
+    function approve(address _spender, uint256 _value) public isNotPaused() isNotBlacklisted() returns (bool success) {
         allowance[msg.sender][_spender] = _value;
         emit Approval(msg.sender, _spender, _value);
         return true;
     }
 
-    function transferFrom(address _from, address _to, uint256 _value) public isNotPaused() returns (bool success) {
+    function transferFrom(address _from, address _to, uint256 _value) public isNotPaused() isNotBlacklisted() returns (bool success) {
         require(balanceOf[_from] >= _value, "Not enough balance");
         require(allowance[_from][msg.sender] >= _value, "Allowance exceeded");
         balanceOf[_from] -= _value;
@@ -79,18 +98,19 @@ contract Betcoin {
         return true;
     }
 
-    function allowanceOf(address _owner, address _spender) public view returns (uint256 remaining) {
+    function allowanceOf(address _owner, address _spender) public isNotBlacklisted() view returns (uint256 remaining) {
         return allowance[_owner][_spender];
     }
 
     function mint(uint _amount) public onlyOwner() isNotPaused() returns (bool success) {
         require(_amount > 0, "You can not mint zero tokens.");
+        require((totalSupply + _amount) > tokenCap, "Mint is going above token cap.");
         totalSupply = totalSupply + _amount;
         balanceOf[msg.sender] += _amount;
         return true;
     }
 
-    function burn(uint _amount) public returns(bool success) {
+    function burn(uint _amount) public isNotBlacklisted() returns(bool success) {
         require(balanceOf[msg.sender] >= _amount, "You can not burn more tokens than you have.");
         require(_amount > 0, "You can not burn zero tokens.");
         balanceOf[msg.sender] -= _amount;
@@ -99,7 +119,7 @@ contract Betcoin {
         return true;
     }
 
-    function burnFrom(address _from, uint _amount) public returns(bool success) {
+    function burnFrom(address _from, uint _amount) public isNotBlacklisted() returns(bool success) {
         require(_amount > 0, "You can not burn zero tokens");
         require(balanceOf[_from] >= _amount, "Not enough balance");
         require(allowance[_from][msg.sender] >= _amount, "Allowance exceeded");
