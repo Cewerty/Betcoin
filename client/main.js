@@ -1,5 +1,6 @@
-import { BrowserProvider, Contract } from 'https://cdnjs.cloudflare.com/ajax/libs/ethers/6.7.0/ethers.min.js';
+import { BrowserProvider, Contract, parseUnits, formatUnits } from 'https://cdnjs.cloudflare.com/ajax/libs/ethers/6.7.0/ethers.min.js';
 import BetcoinArtifact from "../artifacts/contracts/token.sol/Betcoin.json" with {type: 'json'};
+
 
 //ABI и адрес для подключения к контракту 
 const contractABI = BetcoinArtifact.abi;
@@ -28,12 +29,13 @@ async function init() {
         signer = await provider.getSigner();
         contract = new Contract(contractAddress, contractABI, signer);
         tokenSymbol.innerText = await contract.symbol();
-        console.log(await contract.symbol());
-        tokenTotalSupply.innerText = await contract.totalSupply();
-        console.log(await contract.totalSupply());
+        const decimals = await contract.decimals();
+        const unformated_total_supply = await contract.totalSupply();
+        tokenTotalSupply.innerText = formatUnits(unformated_total_supply, decimals);
         tokenName.innerText = await contract.name();
         user_address = await signer.getAddress();
-        tokenBalance.innerText = await contract.balanceOf(user_address);
+        const unformated_balance = await contract.balanceOf(user_address);
+        tokenBalance.innerText = formatUnits(unformated_balance, decimals);
     }
     else {
         alert("Install Metamask!")
@@ -42,13 +44,23 @@ async function init() {
 
 window.onload = init();
 
-transactionForm.addEventListener('submit', async () => {
+transactionForm.addEventListener('submit', async (event) => {
+    event.preventDefault();
     try {
-    const Sum = transactionSum.value.trim();
     const Address = transactionAccount.value.trim();
-    const tx = await contract.transfer(Address, Sum);
-    const tx_data = tx.wait();
-    if (tx_data.status == 0) {
+    const decimals = await contract.decimals();
+    const Sum = transactionSum.value.trim();
+    const BNSum = parseUnits(Sum, decimals);
+    const userBalance = await contract.balanceOf(user_address);
+        if (userBalance < Sum) {
+            alert("Недостаточно токенов для перевода!");
+            return;
+    }
+    const tx = await contract.transfer(Address, BNSum);
+    const receipt = await tx.wait();
+    const balance = await contract.balanceOf(user_address);
+    tokenBalance.innerText = formatUnits(balance, decimals);
+    if (receipt.status == 0) {
         alert("При проведении транзакциии произошла ошибка!");
     }
     else{
