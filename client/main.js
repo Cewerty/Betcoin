@@ -1,6 +1,5 @@
-import { BrowserProvider, Contract, parseUnits, formatUnits } from 'https://cdnjs.cloudflare.com/ajax/libs/ethers/6.7.0/ethers.min.js';
+import { BrowserProvider, Contract, parseUnits, formatUnits, isAddress } from 'https://cdnjs.cloudflare.com/ajax/libs/ethers/6.7.0/ethers.min.js';
 import BetcoinArtifact from "../artifacts/contracts/token.sol/Betcoin.json" with {type: 'json'};
-
 
 //ABI и адрес для подключения к контракту 
 const contractABI = BetcoinArtifact.abi;
@@ -16,6 +15,18 @@ const tokenTotalSupply = document.getElementById("token-totalSupply");
 const transactionSum = document.getElementById('transaction-sum');
 const transactionAccount = document.getElementById("transaction-account");
 const transactionForm = document.getElementById("transaction-form");
+
+//Элементы формы для разрешения пользования
+const approveForm = document.getElementById("approve-form");
+const approveSum = document.getElementById("approve-sum");
+const approveSpender = document.getElementById("approve-spender");
+
+//Элементы формы для транзакции с другого аккаунта
+const transactionFromForm = document.getElementById('transfer-from-form');
+const transactionFromSum = document.getElementById('transfer-from-sum');
+const transactionFromSender = document.getElementById('transfer-from-sender');
+const transactionFromReceiver = document.getElementById('transfer-from-receiver');
+
 
 let provider;
 let signer;
@@ -58,10 +69,11 @@ transactionForm.addEventListener('submit', async (event) => {
     }
     const tx = await contract.transfer(Address, BNSum);
     const receipt = await tx.wait();
+    console.log(receipt);
     const balance = await contract.balanceOf(user_address);
     tokenBalance.innerText = formatUnits(balance, decimals);
     if (receipt.status == 0) {
-        alert("При проведении транзакциии произошла ошибка!");
+        alert("При проведении транзакции произошла ошибка!");
     }
     else{
         alert("Перевод успешно выполнен!");
@@ -70,3 +82,68 @@ transactionForm.addEventListener('submit', async (event) => {
         console.log("Transaction error:", error);    
     }
 })
+
+approveForm.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    try {
+        const Sum = approveSum.value.trim();
+        const Spender = approveSpender.value.trim();
+        if (!isAddress(Spender)) {
+            alert("Введеный адрес невалиден");
+            return;
+        }
+        if (Number(Sum) === 0) {
+            alert("Сумма должна быть больше нуля");
+            return;
+        }
+        const decimals = await contract.decimals();
+        const BNSum = await parseUnits(Sum, decimals);
+        const tx = await contract.approve(Spender, BNSum);
+        const receipt = tx.wait();
+        if (receipt.status === 0) {
+            alert("Ошибка при передачи владения токенами.");
+        }
+        else {
+            alert("Передача владением выполнена успешно!");
+        }
+    } catch (error) {
+        console.log("Approval error:", error);
+    }
+});
+
+transactionFromForm.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    try {
+        const Sum = transactionFromSum.value.trim();
+        const Sender = transactionFromSender.value.trim();
+        const senderBalance = await contract.balanceOf(Sender);
+        console.log(senderBalance);
+        console.log(Sum);
+        if (senderBalance < Sum) {
+            alert("Недостаточно токенов для перевода");
+            return;
+        }
+        if (Number(Sum) === 0) {
+            alert("Сумма должна быть больше нуля");
+        }
+        const Receiver = transactionFromReceiver.value.trim();
+        if (!isAddress(Sender) || !isAddress(Receiver)) {
+            alert("Введеные адреса невалидны");
+        }
+        const decimals = await contract.decimals();
+        const BNSum = parseUnits(Sum, decimals);
+        const tx = await contract.transferFrom(Sender, Receiver, BNSum);
+        const receipt = await tx.wait();
+        const balance = await contract.balanceOf(user_address);
+        tokenBalance.innerText = formatUnits(balance, decimals);
+        if (receipt.status === 0) {
+            alert("Ошибка при переводе средств с другого аккаунта");
+        }
+        else {
+            alert("Перевод выполнен успешно!");
+        }
+    } catch (error) {
+        console.log("Transfer from error: ", error);
+    }
+
+});

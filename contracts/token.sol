@@ -38,6 +38,7 @@ contract Betcoin {
     event RewardsClaimed(address indexed user, uint256 amount, uint256 timestamp);
     constructor(uint256 initialSupply) {
         totalSupply = initialSupply * (10 ** uint256(decimals));
+        tokenCap = initialSupply;
         balanceOf[msg.sender] = totalSupply;
         owner = msg.sender;
         emit Transfer(address(0), msg.sender, totalSupply);
@@ -98,6 +99,7 @@ contract Betcoin {
         require(balanceOf[_from] >= _value, "Not enough balance");
         require(allowance[_from][msg.sender] >= _value, "Allowance exceeded");
         balanceOf[_from] -= _value;
+        balanceOf[_to] += _value;
         emit Transfer(_from, _to, _value);
         return true;
     }

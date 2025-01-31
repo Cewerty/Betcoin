@@ -14,6 +14,7 @@
         <p>Total supply is <b><span id="token-totalSupply"></span></b></p>
         <p>Your current balance is <b><span id="token-userBalance"></span></b></p>
         <form id="transaction-form">
+            <h3>Transfer</h3>
             <label>Введите сумму токенов, которую хотите перевести:</label>
             <input id="transaction-sum" type="number" required>
             <br>
@@ -21,6 +22,31 @@
             <input id="transaction-account" type="text" required>
             <br>
             <button type="submit">Отправить транзакцию</button>
+        </form>
+
+        <form id="approve-form">
+            <h3>Approve Tokens</h3>
+            <label>Введите сумму токенов, которую хотите разрешить для списания:</label>
+            <input id="approve-sum" type="number" required>
+            <br>
+            <label>Введите аккаунт, которому вы хотите разрешить списание:</label>
+            <input id="approve-spender" type="text" required>
+            <br>
+            <button type="submit">Разрешить списание</button>
+        </form>
+
+        <form id="transfer-from-form">
+            <h3>Transfer From</h3>
+            <label>Введите сумму токенов, которую хотите перевести:</label>
+            <input id="transfer-from-sum" type="number" required>
+            <br>
+            <label>Введите аккаунт, с которого хотите перевести токены:</label>
+            <input id="transfer-from-sender" type="text" required>
+            <br>
+            <label>Введите аккаунт, на который хотите перевести токены:</label>
+            <input id="transfer-from-receiver" type="text" required>
+            <br>
+            <button type="submit">Перевести токены</button>
         </form>
     </main>
     <footer>
