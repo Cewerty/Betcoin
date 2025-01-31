@@ -1,7 +1,6 @@
 // const hre = require('hardhat');
 import hre from 'hardhat';
 
-
 async function main() {
 
     const [deployer] = await hre.ethers.getSigners();
@@ -10,8 +9,8 @@ async function main() {
 
     const TokenFactory = await hre.ethers.getContractFactory("Betcoin", deployer);
 
-    // const initialSupply = hre.ethers.parseUnits('1000000', 18);
-    const initialSupply = 1;
+    const initialSupply = hre.ethers.parseUnits('1000000', 18);
+    // const initialSupply = 100000000;
 
     const token = await TokenFactory.deploy(initialSupply);
 
