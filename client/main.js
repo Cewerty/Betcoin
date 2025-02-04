@@ -49,7 +49,7 @@ async function init() {
         tokenBalance.innerText = formatUnits(unformated_balance, decimals);
     }
     else {
-        alert("Install Metamask!")
+        alert("Install Metamask!");
     }
 }
 

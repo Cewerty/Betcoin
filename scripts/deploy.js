@@ -18,7 +18,16 @@ async function main() {
 
     const contractAddress = await token.getAddress();
 
+    const StorageFactory = await hre.ethers.getContractFactory("Storage");
+
+    const storage = await StorageFactory.deploy(contractAddress);
+
+    const storageAddress = await storage.getAddress();
+
+    await storage.waitForDeployment();
+
     console.log("Контракт Betcoin развернут по адресу:", contractAddress);
+    console.log("Контракт Storage развернут по адресу:", storageAddress);
 
 }
 

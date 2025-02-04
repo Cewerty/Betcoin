@@ -18,13 +18,7 @@ contract Staking {
         uint256 lastRewardTime;
     }
 
-    struct Reward {
-        uint256 stakeIndex;
-        uint256 rewardTime;
-    }
-
     mapping(address => Stake[]) public staked;
-    mapping(address => Reward[]) public lastRewardTime;
 
     event Staked(address indexed user, uint256 amount, uint256 timestamp);
     event Unstaked(address indexed user, uint256 amount, uint256 timestamp);
@@ -77,10 +71,7 @@ contract Staking {
         // Переводим вознаграждение пользователю
         require(betcoin.transfer(msg.sender, totalReward), "Transfer failed");
 
-        lastRewardTime[msg.sender].push(Reward({
-            stakeIndex: index,
-            rewardTime: block.timestamp
-        }));
+        staked[msg.sender][index].lastRewardTime = block.timestamp;
 
         emit RewardsClaimed(msg.sender, totalReward, block.timestamp);
         return true;

@@ -29,6 +29,10 @@ contract Storage {
         return token.balanceOf(userAddress);
     }
 
+    function getTokenAmount() public view returns(uint256) {
+        return tokenAmount[tokenAddress];
+    }
+
     function changeToken(address _tokenAddress) public {
         emit tokenChanged(_tokenAddress, tokenAddress);
         tokenAddress = _tokenAddress;

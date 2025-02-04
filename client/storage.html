@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+    <head>
+    </head>
+    <body>
+        <p>Total amount of tokens in storage: <span id="storage-totalAmount"></span></p>
+        <p>Your token balance is <span id="tokenBalance"></span></p>
+        <p>You deposited <span id="storage-deposited"></span></p>
+        <form id="storage-deposit">
+            <label>Введите сумму токенов для депозита:</label>
+            <input id='storage-depositAmount' type="number" placeholder="Сумма токенов" required>
+            <button type="submit">Отправить</button>
+        </form>
+        <form id="storage-withdraw">
+            <label>Введите сумму токенов для вывода</label>
+            <input id="storage-withdrawAmount" type="number" placeholder="Сумма токенов" required>
+            <button type="submit">Вывести</button>
+        </form>
+        <script type="module" src="storage.js"></script>
+    </body>
+</html>

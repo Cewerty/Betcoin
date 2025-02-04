@@ -13,8 +13,6 @@ contract Betcoin {
     bool public paused;
     address public owner;
 
-    uint256 public maximumStakingPeriod;
-    uint256 public minimumStakingPeriod;
     struct Stake {
         uint256 amount;
         uint256 startTime;
@@ -75,12 +73,7 @@ contract Betcoin {
     function unblacklistAddress(address _address) public onlyOwner() {
         blacklist[_address] = false;
     }
-    function setMinimumStakingPeriod(uint256 newMinimumStakingPeriod) public onlyOwner() {
-        minimumStakingPeriod = newMinimumStakingPeriod;
-    }
-    function setMaximumStakingPeriod(uint256 newMaximumStakingPeriod) public onlyOwner() {
-        maximumStakingPeriod = newMaximumStakingPeriod;
-    }
+
     function transfer(address _to, uint256 _value) public isNotPaused() isNotBlacklisted() returns (bool success) {
         require(balanceOf[msg.sender] >= _value, "Not enough balance");
         balanceOf[msg.sender] -= _value;
